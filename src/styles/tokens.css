@@ -1,0 +1,54 @@
+/* Design tokens: the single source for color, type, spacing, radius and shadow. */
+:root {
+  /* Paper-and-ink palette, like a ledger book */
+  --bg: #f4f1ea;
+  --surface: #fffdf8;
+  --surface-sunken: #efeadf;
+  --ink: #17231f;
+  --ink-muted: #56655f;
+  --line: #ddd6c7;
+  --line-strong: #bfb7a4;
+
+  --brand: #1f4d3f;
+  --brand-hover: #173b30;
+  --brand-ink: #ffffff;
+  --brand-tint: #e3ede7;
+
+  --income: #1b6b4d;
+  --income-tint: #def0e6;
+  --expense: #a33a28;
+  --expense-tint: #f6e1db;
+  --warning: #8a5a00;
+  --warning-tint: #f8ecce;
+
+  --focus: #2457d6;
+
+  /* Typography */
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --font-serif:
+    "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+    "Times New Roman", serif;
+
+  --text-xs: 0.78rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.2rem;
+  --text-xl: 1.5rem;
+  --text-2xl: clamp(1.7rem, 1.3rem + 1.6vw, 2.3rem);
+
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --shadow-card:
+    0 1px 0 rgba(23, 35, 31, 0.05), 0 12px 28px -20px rgba(23, 35, 31, 0.35);
+}
