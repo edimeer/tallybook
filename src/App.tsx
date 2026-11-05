@@ -116,7 +116,7 @@ export default function App() {
         )}
 
         {finance.status === "error" && (
-          <div className="card panel" role="alert">
+          <div className="panel" role="alert">
             <EmptyState
               title="The dashboard could not load"
               actions={
@@ -135,7 +135,7 @@ export default function App() {
         )}
 
         {finance.status === "ready" && finance.data && !hasAnyData && (
-          <div className="card panel">
+          <div className="panel">
             <EmptyState
               title="No transactions yet"
               actions={

@@ -76,7 +76,7 @@ export function DonutChart({
           key={slice.category.id}
           d={d}
           fill={`url(#${patternId(slice.category)})`}
-          stroke="var(--surface)"
+          stroke="var(--bg)"
           strokeWidth="3"
           strokeLinejoin="round"
           opacity={activeId && activeId !== slice.category.id ? 0.35 : 1}

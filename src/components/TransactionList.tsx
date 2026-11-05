@@ -64,7 +64,7 @@ export function TransactionList({
   const incomeCategories = categories.filter((c) => c.kind === "income");
 
   return (
-    <section className="card panel" aria-labelledby="transactions-heading">
+    <section className="panel" aria-labelledby="transactions-heading">
       <header className="panel__header panel__header--row">
         <div>
           <h2

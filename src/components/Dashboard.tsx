@@ -12,7 +12,7 @@ import { formatMonth, formatMonthName } from "../lib/dates";
 import type { Budget, Category, MonthKey, Transaction } from "../types";
 import { DEMO_MONTHS } from "../data/demoData";
 import { BudgetPanel } from "./BudgetPanel";
-import { OverviewCards } from "./OverviewCards";
+import { MonthHero } from "./MonthHero";
 import { SpendingBreakdown } from "./SpendingBreakdown";
 import { TransactionList } from "./TransactionList";
 
@@ -66,7 +66,7 @@ export function Dashboard({
 
   return (
     <div className="dashboard">
-      <OverviewCards
+      <MonthHero
         summary={view.summary}
         previous={view.previous}
         previousLabel={
@@ -75,6 +75,7 @@ export function Dashboard({
             : "last month"
         }
         plannedCents={plannedCents}
+        monthLabel={monthLabel}
       />
 
       <div className="dashboard__panels">

@@ -25,7 +25,7 @@ export function SpendingBreakdown({
   const [activeId, setActiveId] = useState<string | null>(null);
 
   return (
-    <section className="card panel" aria-labelledby="breakdown-heading">
+    <section className="panel" aria-labelledby="breakdown-heading">
       <header className="panel__header">
         <h2 id="breakdown-heading" className="panel__title">
           Spending by category

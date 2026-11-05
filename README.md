@@ -4,9 +4,11 @@ A personal finance dashboard built as a portfolio project. It shows a monthly ov
 
 It is a static React app (Vite + TypeScript) that deploys to GitHub Pages. It organizes and visualizes sample or manually entered data. It does not connect to banks, process payments, or give financial advice.
 
+![Tallybook dashboard showing the October 2026 sample data](docs/screenshot.png)
+
 ## Features
 
-- Monthly overview: income, expenses, remaining budget and savings rate, with a comparison to the previous month
+- Monthly overview: a hero showing how much of the plan is left, with income, expenses and savings rate (compared with the previous month) underneath
 - Spending breakdown: donut chart plus a legend with amounts and percentages (slices also use textures, so they do not rely on color alone). Choosing a legend item filters the transaction list.
 - Monthly budget: planned vs actual per category, with text and pattern cues for "near limit" and "over budget"
 - Transactions: search, category filter, sorting, income/expense indicators (icon, sign and color)
@@ -31,6 +33,7 @@ Other scripts:
 ```bash
 npm run lint        # oxlint
 npm run typecheck   # tsc
+npm test            # vitest unit tests
 npm run build       # typecheck, then build the static site into dist/
 npm run preview     # serve dist/ locally to check the production build
 ```
@@ -45,7 +48,7 @@ The output is in `dist/`. It is plain HTML, CSS and JavaScript and can be hosted
 
 ## Deploy to GitHub Pages
 
-A workflow is included at `.github/workflows/deploy.yml`. It lints, builds and publishes on every push to `main`.
+A workflow is included at `.github/workflows/deploy.yml`. It lints, runs the tests, builds and publishes on every push to `main`.
 
 1. Push this project to a GitHub repository.
 2. In the repository, open **Settings > Pages** and set **Source** to **GitHub Actions**.
@@ -98,3 +101,4 @@ See [docs/api-boundary.md](docs/api-boundary.md) for the interface, the expected
 - Money is stored as integer cents and formatted with `Intl.NumberFormat`. Dates are ISO strings formatted in UTC so time zones never shift a day.
 - The chart is a small hand-written SVG. A chart library was not needed for one donut chart, and this keeps the bundle small and the accessibility under control.
 - Styling is plain CSS with design tokens (`src/styles/tokens.css`) instead of a utility framework.
+- Design: one raised hero answers "how much of the plan is left"; everything else is flat sections divided by rules. Headings and figures use Bricolage Grotesque (self-hosted through `@fontsource-variable`, so no external font requests); body text uses the system font.

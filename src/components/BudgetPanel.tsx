@@ -36,7 +36,7 @@ export function BudgetPanel({
   monthLabel,
 }: BudgetPanelProps) {
   return (
-    <section className="card panel" aria-labelledby="budget-heading">
+    <section className="panel" aria-labelledby="budget-heading">
       <header className="panel__header">
         <h2 id="budget-heading" className="panel__title">
           Monthly budget
