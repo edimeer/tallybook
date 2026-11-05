@@ -1,28 +1,31 @@
 /* Design tokens: the single source for color, type, spacing, radius and shadow. */
 :root {
-  /* Cool paper, deep ink, one teal, with saffron and brick as signals */
-  --bg: #f0f3f1;
-  --surface: #fbfcfb;
-  --surface-sunken: #e3eae7;
-  --ink: #12201f;
-  --ink-muted: #4d5d5b;
-  --line: #cdd7d3;
-  --line-strong: #98aaa5;
+  color-scheme: dark;
 
-  --brand: #0f6b6b;
-  --brand-hover: #0b5252;
-  --brand-ink: #ffffff;
-  --brand-tint: #d8ebe9;
+  /* Deep green-black surfaces with soft off-white text, kept low in glare */
+  --bg: #0f1615;
+  --surface: #172221;
+  --surface-sunken: #1e2c2a;
+  --field: #0b1110;
+  --ink: #e4ece9;
+  --ink-muted: #a1b4af;
+  --line: #2b3d3a;
+  --line-strong: #5a7570;
 
-  --income: #0f6b6b;
-  --income-tint: #d8ebe9;
-  --expense: #b3412e;
-  --expense-tint: #f4dcd5;
-  --saffron: #d9992b;
-  --warning: #7d5300;
-  --warning-tint: #f7e6c4;
+  --brand: #3fb5b0;
+  --brand-hover: #5ccac5;
+  --brand-ink: #06201f;
+  --brand-tint: #17403f;
 
-  --focus: #2457d6;
+  --income: #4fc9bd;
+  --income-tint: #14403d;
+  --expense: #ff8d77;
+  --expense-tint: #4a2620;
+  --saffron: #e6af45;
+  --warning: #f0c46a;
+  --warning-tint: #3b2e10;
+
+  --focus: #7fb0ff;
 
   /* Typography: a characterful grotesque for headings and figures, system sans for reading */
   --font-display:
@@ -52,5 +55,5 @@
   --radius: 12px;
   --radius-lg: 22px;
   --shadow-raised:
-    0 1px 0 rgba(18, 32, 31, 0.06), 0 24px 48px -28px rgba(18, 32, 31, 0.45);
+    0 1px 0 rgba(255, 255, 255, 0.04), 0 24px 48px -28px rgba(0, 0, 0, 0.7);
 }

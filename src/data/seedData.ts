@@ -1,93 +1,93 @@
 import type { Budget, Category, MonthKey, Transaction } from "../types";
 
 /**
- * Sample data. Everything here is invented; nothing comes from a real account.
- * Transactions are generated from a seeded random number generator, so the demo
+ * Starter data. Everything here is invented; nothing comes from a real account.
+ * Transactions are generated from a seeded random number generator, so the first load
  * looks the same for every visitor and on every reload.
  */
 
-export const DEMO_CATEGORIES: Category[] = [
+export const SEED_CATEGORIES: Category[] = [
   {
     id: "housing",
     name: "Housing",
     kind: "expense",
-    color: "#2f5d50",
+    color: "#4fae8f",
     pattern: "solid",
   },
   {
     id: "groceries",
     name: "Groceries",
     kind: "expense",
-    color: "#d98e04",
+    color: "#e3a21a",
     pattern: "diag",
   },
   {
     id: "dining",
     name: "Dining out",
     kind: "expense",
-    color: "#c8553d",
+    color: "#e0664c",
     pattern: "dots",
   },
   {
     id: "transport",
     name: "Transport",
     kind: "expense",
-    color: "#3d6fb6",
+    color: "#5b92e0",
     pattern: "cross",
   },
   {
     id: "utilities",
     name: "Utilities",
     kind: "expense",
-    color: "#7a5ea8",
+    color: "#9a80d4",
     pattern: "horiz",
   },
   {
     id: "health",
     name: "Health",
     kind: "expense",
-    color: "#2c9aa0",
+    color: "#34b8c0",
     pattern: "vert",
   },
   {
     id: "fun",
     name: "Entertainment",
     kind: "expense",
-    color: "#b8457b",
+    color: "#d9609a",
     pattern: "diag-rev",
   },
   {
     id: "shopping",
     name: "Shopping",
     kind: "expense",
-    color: "#8a6d3b",
+    color: "#b8955a",
     pattern: "checks",
   },
   {
     id: "salary",
     name: "Salary",
     kind: "income",
-    color: "#1d6b4f",
+    color: "#4cc4b8",
     pattern: "solid",
   },
   {
     id: "freelance",
     name: "Freelance",
     kind: "income",
-    color: "#4b8f6e",
+    color: "#7fd0b6",
     pattern: "diag",
   },
   {
     id: "other-income",
     name: "Other income",
     kind: "income",
-    color: "#6aa58a",
+    color: "#a2dcc4",
     pattern: "dots",
   },
 ];
 
 /** Monthly plan per expense category, in cents. */
-export const DEMO_BUDGETS: Budget[] = [
+export const SEED_BUDGETS: Budget[] = [
   { categoryId: "housing", plannedCents: 175000 },
   { categoryId: "groceries", plannedCents: 60000 },
   { categoryId: "dining", plannedCents: 28000 },
@@ -98,8 +98,8 @@ export const DEMO_BUDGETS: Budget[] = [
   { categoryId: "shopping", plannedCents: 20000 },
 ];
 
-/** The months the sample data covers, oldest first. */
-export const DEMO_MONTHS: MonthKey[] = [
+/** The months the starter data covers, oldest first. */
+export const SEED_MONTHS: MonthKey[] = [
   "2026-05",
   "2026-06",
   "2026-07",
@@ -109,7 +109,7 @@ export const DEMO_MONTHS: MonthKey[] = [
 ];
 
 /** The month shown on first load. */
-export const DEFAULT_MONTH: MonthKey = DEMO_MONTHS[DEMO_MONTHS.length - 1];
+export const DEFAULT_MONTH: MonthKey = SEED_MONTHS[SEED_MONTHS.length - 1];
 
 // --- generator ---------------------------------------------------------------
 
@@ -154,10 +154,10 @@ const FUN = [
   "Board game cafe",
 ];
 
-export function createDemoTransactions(): Transaction[] {
+export function createSeedTransactions(): Transaction[] {
   const result: Transaction[] = [];
 
-  DEMO_MONTHS.forEach((month, monthIndex) => {
+  SEED_MONTHS.forEach((month, monthIndex) => {
     const random = createRandom(2026 * 100 + monthIndex);
     const between = (min: number, max: number) => min + random() * (max - min);
     const pick = <T>(items: T[]) => items[Math.floor(random() * items.length)];
@@ -172,7 +172,7 @@ export function createDemoTransactions(): Transaction[] {
     ) => {
       counter += 1;
       result.push({
-        id: `demo-${month.replace("-", "")}-${String(counter).padStart(2, "0")}`,
+        id: `seed-${month.replace("-", "")}-${String(counter).padStart(2, "0")}`,
         date,
         description,
         amountCents: dollars(amount),

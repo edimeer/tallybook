@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { createDemoTransactions } from "../data/demoData";
+import { createSeedTransactions } from "../data/seedData";
 import { NotFoundError, PersistenceError } from "./financeRepository";
-import { createLocalDemoRepository } from "./localDemoRepository";
+import { createLocalRepository } from "./localRepository";
 
 /** Minimal in-memory Storage so the repository can be tested without a browser. */
 function fakeStorage(failWrites = false): Storage {
@@ -28,24 +28,24 @@ const input = {
   categoryId: "dining",
 };
 
-describe("local demo repository", () => {
+describe("local repository", () => {
   let storage: Storage;
   beforeEach(() => {
     storage = fakeStorage();
   });
 
-  it("starts with the sample data", async () => {
-    const repo = createLocalDemoRepository(storage);
-    expect(await repo.listTransactions()).toEqual(createDemoTransactions());
+  it("starts with the starter data", async () => {
+    const repo = createLocalRepository(storage);
+    expect(await repo.listTransactions()).toEqual(createSeedTransactions());
   });
 
   it("creates, updates and deletes, and persists between instances", async () => {
-    const repo = createLocalDemoRepository(storage);
+    const repo = createLocalRepository(storage);
     const before = (await repo.listTransactions()).length;
 
     const created = await repo.createTransaction(input);
     expect(
-      (await createLocalDemoRepository(storage).listTransactions()).length,
+      (await createLocalRepository(storage).listTransactions()).length,
     ).toBe(before + 1);
 
     const updated = await repo.updateTransaction(created.id, {
@@ -61,28 +61,28 @@ describe("local demo repository", () => {
     );
   });
 
-  it("clears and restores the sample data", async () => {
-    const repo = createLocalDemoRepository(storage);
+  it("clears and restores the starter data", async () => {
+    const repo = createLocalRepository(storage);
     await repo.clearAllData?.();
     expect(await repo.listTransactions()).toEqual([]);
-    await repo.resetDemoData?.();
-    expect(await repo.listTransactions()).toEqual(createDemoTransactions());
+    await repo.restoreStarterData?.();
+    expect(await repo.listTransactions()).toEqual(createSeedTransactions());
   });
 
-  it("falls back to sample data when stored data is corrupted", async () => {
-    storage.setItem("tallybook:demo:v1", "{not json");
-    const repo = createLocalDemoRepository(storage);
-    expect(await repo.listTransactions()).toEqual(createDemoTransactions());
+  it("falls back to starter data when stored data is corrupted", async () => {
+    storage.setItem("tallybook:v1", "{not json");
+    const repo = createLocalRepository(storage);
+    expect(await repo.listTransactions()).toEqual(createSeedTransactions());
 
     storage.setItem(
-      "tallybook:demo:v1",
+      "tallybook:v1",
       JSON.stringify({ version: 1, transactions: [{ id: 1 }] }),
     );
-    expect(await repo.listTransactions()).toEqual(createDemoTransactions());
+    expect(await repo.listTransactions()).toEqual(createSeedTransactions());
   });
 
   it("reports a readable error when storage cannot be written", async () => {
-    const repo = createLocalDemoRepository(fakeStorage(true));
+    const repo = createLocalRepository(fakeStorage(true));
     await expect(repo.createTransaction(input)).rejects.toBeInstanceOf(
       PersistenceError,
     );

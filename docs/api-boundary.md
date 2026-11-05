@@ -1,6 +1,6 @@
 # API boundary
 
-The UI reads and writes data only through `FinanceRepository`, defined in `src/services/financeRepository.ts`. The first version implements it with browser storage (`src/services/localDemoRepository.ts`). A Rails JSON API can implement the same interface later without changing any component.
+The UI reads and writes data only through `FinanceRepository`, defined in `src/services/financeRepository.ts`. The first version implements it with browser storage (`src/services/localRepository.ts`). A Rails JSON API can implement the same interface later without changing any component.
 
 This is a contract only. No backend is built.
 
@@ -8,15 +8,15 @@ This is a contract only. No backend is built.
 
 ```ts
 interface FinanceRepository {
-  readonly mode: 'demo' | 'api'
+  readonly mode: 'local' | 'api'
   listCategories(): Promise<Category[]>
   listBudgets(): Promise<Budget[]>
   listTransactions(): Promise<Transaction[]>
   createTransaction(input: TransactionInput): Promise<Transaction>
   updateTransaction(id: string, input: TransactionInput): Promise<Transaction>
   deleteTransaction(id: string): Promise<void>
-  resetDemoData?(): Promise<Transaction[]>   // demo only
-  clearAllData?(): Promise<Transaction[]>    // demo only
+  restoreStarterData?(): Promise<Transaction[]>   // local only
+  clearAllData?(): Promise<Transaction[]>    // local only
 }
 ```
 
@@ -33,7 +33,7 @@ Errors are thrown as `Error` objects with a message that is safe to show to peop
 | PATCH  | `/api/v1/transactions/:id`  | `updateTransaction`    |
 | DELETE | `/api/v1/transactions/:id`  | `deleteTransaction`    |
 
-For larger data sets, `GET /transactions` should accept `?from=YYYY-MM-DD&to=YYYY-MM-DD` and the repository would load one month at a time. The first version loads everything because the sample data is small.
+For larger data sets, `GET /transactions` should accept `?from=YYYY-MM-DD&to=YYYY-MM-DD` and the repository would load one month at a time. The first version loads everything because the data set is small.
 
 ## JSON shapes
 
@@ -66,8 +66,8 @@ Validation failures should return HTTP 422 with a readable message the repositor
 ## Switching to the API
 
 1. Write `createApiRepository(baseUrl)` in `src/services/apiRepository.ts`, returning an object with `mode: 'api'` that implements the methods above using `fetch`.
-2. In `src/services/index.ts`, return it from `createRepository()` when a public setting such as `import.meta.env.VITE_API_URL` is set. Otherwise keep returning the local demo repository, which stays the default.
-3. With `mode: 'api'` the UI hides the Demo data badge and the restore/clear actions automatically.
+2. In `src/services/index.ts`, return it from `createRepository()` when a public setting such as `import.meta.env.VITE_API_URL` is set. Otherwise keep returning the local repository, which stays the default.
+3. With `mode: 'api'` the UI hides the reset and clear actions automatically.
 
 ## Authentication and secrets
 

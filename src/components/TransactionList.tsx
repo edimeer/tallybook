@@ -1,7 +1,8 @@
-import { useId, type RefObject } from "react";
+import { useId, useState, type RefObject } from "react";
 import {
   categoryMap,
   filterAndSortTransactions,
+  paginate,
   type SortKey,
   type TransactionFilters,
 } from "../lib/calculations";
@@ -11,6 +12,8 @@ import type { Category, Transaction } from "../types";
 import { EmptyState } from "./EmptyState";
 import {
   ArrowDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   ArrowUpIcon,
   PencilIcon,
   PlusIcon,
@@ -29,7 +32,7 @@ interface TransactionListProps {
   onAdd: () => void;
   onEdit: (transaction: Transaction) => void;
   onDelete: (transaction: Transaction) => void;
-  onRestoreDemo?: () => void;
+  onRestoreStarter?: () => void;
 }
 
 const SORT_OPTIONS: { value: SortKey; label: string }[] = [
@@ -44,19 +47,36 @@ export function TransactionList({
   transactions,
   categories,
   filters,
-  onFiltersChange,
+  onFiltersChange: setFilters,
   monthLabel,
   headingRef,
   onAdd,
   onEdit,
   onDelete,
-  onRestoreDemo,
+  onRestoreStarter,
 }: TransactionListProps) {
   const searchId = useId();
   const categoryId = useId();
   const sortId = useId();
   const lookup = categoryMap(categories);
-  const visible = filterAndSortTransactions(transactions, categories, filters);
+  const [requestedPage, setRequestedPage] = useState(1);
+  const matches = filterAndSortTransactions(transactions, categories, filters);
+  const pageView = paginate(matches, requestedPage);
+  const visible = pageView.items;
+
+  // Any change to search, category or sort starts again from the first page.
+  const onFiltersChange = (next: TransactionFilters) => {
+    setRequestedPage(1);
+    setFilters(next);
+  };
+
+  // After changing page, bring the top of the list into view and move focus there,
+  // because the button that was pressed may be disabled on the last or first page.
+  const goToPage = (page: number) => {
+    setRequestedPage(page);
+    headingRef.current?.scrollIntoView({ block: "start" });
+    headingRef.current?.focus({ preventScroll: true });
+  };
   const hasFilters =
     filters.query.trim() !== "" || filters.categoryId !== "all";
 
@@ -152,8 +172,16 @@ export function TransactionList({
       </div>
 
       <p className="result-count" role="status">
-        Showing {visible.length} of {transactions.length}{" "}
-        {transactions.length === 1 ? "transaction" : "transactions"}
+        {matches.length === 0
+          ? "No transactions to show"
+          : `Showing ${pageView.start} to ${pageView.end} of ${matches.length}`}
+        {hasFilters
+          ? ` matching (${transactions.length} this month)`
+          : matches.length === 0
+            ? ""
+            : matches.length === 1
+              ? " transaction"
+              : " transactions"}
         {hasFilters && (
           <>
             {" "}
@@ -183,13 +211,13 @@ export function TransactionList({
                 <PlusIcon />
                 Add transaction
               </button>
-              {onRestoreDemo && (
+              {onRestoreStarter && (
                 <button
                   type="button"
                   className="btn btn--ghost"
-                  onClick={onRestoreDemo}
+                  onClick={onRestoreStarter}
                 >
-                  Restore sample data
+                  Load starter data
                 </button>
               )}
             </>
@@ -198,7 +226,7 @@ export function TransactionList({
           Add an income or expense to see this month take shape, or switch to
           another month.
         </EmptyState>
-      ) : visible.length === 0 ? (
+      ) : matches.length === 0 ? (
         <EmptyState
           title="No matching transactions"
           actions={
@@ -217,66 +245,94 @@ export function TransactionList({
           different term.
         </EmptyState>
       ) : (
-        <ul className="txn-list">
-          {visible.map((t) => {
-            const category = lookup.get(t.categoryId);
-            const isIncome = category?.kind === "income";
-            return (
-              <li key={t.id} className="txn">
-                <time
-                  className="txn__date"
-                  dateTime={t.date}
-                  title={formatDateLong(t.date)}
-                >
-                  {formatDateShort(t.date)}
-                </time>
-
-                <span
-                  className={`indicator indicator--${isIncome ? "income" : "expense"}`}
-                  aria-hidden="true"
-                >
-                  {isIncome ? <ArrowUpIcon /> : <ArrowDownIcon />}
-                </span>
-
-                <div className="txn__main">
-                  <span className="txn__description">{t.description}</span>
-                  <span className="chip">
-                    {category?.name ?? "Unknown category"}
-                  </span>
-                </div>
-
-                <span
-                  className={`txn__amount txn__amount--${isIncome ? "income" : "expense"}`}
-                >
-                  <span className="sr-only">
-                    {isIncome ? "Income " : "Expense "}
-                  </span>
-                  <span aria-hidden="true">{isIncome ? "+" : "-"}</span>
-                  {formatMoney(t.amountCents)}
-                </span>
-
-                <div className="txn__actions">
-                  <button
-                    type="button"
-                    className="btn btn--ghost btn--icon"
-                    onClick={() => onEdit(t)}
+        <>
+          <ul className="txn-list">
+            {visible.map((t) => {
+              const category = lookup.get(t.categoryId);
+              const isIncome = category?.kind === "income";
+              return (
+                <li key={t.id} className="txn">
+                  <time
+                    className="txn__date"
+                    dateTime={t.date}
+                    title={formatDateLong(t.date)}
                   >
-                    <PencilIcon />
-                    <span className="sr-only">Edit {t.description}</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn--ghost btn--icon"
-                    onClick={() => onDelete(t)}
+                    {formatDateShort(t.date)}
+                  </time>
+
+                  <span
+                    className={`indicator indicator--${isIncome ? "income" : "expense"}`}
+                    aria-hidden="true"
                   >
-                    <TrashIcon />
-                    <span className="sr-only">Delete {t.description}</span>
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+                    {isIncome ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                  </span>
+
+                  <div className="txn__main">
+                    <span className="txn__description">{t.description}</span>
+                    <span className="chip">
+                      {category?.name ?? "Unknown category"}
+                    </span>
+                  </div>
+
+                  <span
+                    className={`txn__amount txn__amount--${isIncome ? "income" : "expense"}`}
+                  >
+                    <span className="sr-only">
+                      {isIncome ? "Income " : "Expense "}
+                    </span>
+                    <span aria-hidden="true">{isIncome ? "+" : "-"}</span>
+                    {formatMoney(t.amountCents)}
+                  </span>
+
+                  <div className="txn__actions">
+                    <button
+                      type="button"
+                      className="btn btn--ghost btn--icon"
+                      onClick={() => onEdit(t)}
+                    >
+                      <PencilIcon />
+                      <span className="sr-only">Edit {t.description}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn--ghost btn--icon"
+                      onClick={() => onDelete(t)}
+                    >
+                      <TrashIcon />
+                      <span className="sr-only">Delete {t.description}</span>
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          {pageView.pageCount > 1 && (
+            <nav className="pager" aria-label="Transaction pages">
+              <button
+                type="button"
+                className="btn btn--ghost"
+                disabled={pageView.page === 1}
+                onClick={() => goToPage(pageView.page - 1)}
+              >
+                <ChevronLeftIcon />
+                Previous
+              </button>
+              <p className="pager__status">
+                Page {pageView.page} of {pageView.pageCount}
+              </p>
+              <button
+                type="button"
+                className="btn btn--ghost"
+                disabled={pageView.page === pageView.pageCount}
+                onClick={() => goToPage(pageView.page + 1)}
+              >
+                Next
+                <ChevronRightIcon />
+              </button>
+            </nav>
+          )}
+        </>
       )}
     </section>
   );

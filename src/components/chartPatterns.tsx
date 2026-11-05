@@ -1,7 +1,7 @@
 import type { Category, PatternKind } from "../types";
 import { patternId } from "./patternId";
 
-const OVERLAY = "#ffffff";
+const OVERLAY = "#0b1110";
 
 function overlay(kind: PatternKind) {
   const common = { stroke: OVERLAY, strokeOpacity: 0.7, strokeWidth: 1.6 };
@@ -83,7 +83,7 @@ export function Swatch({ category }: { category: Category }) {
         height="16.5"
         rx="4"
         fill={`url(#${patternId(category)})`}
-        stroke="rgba(23, 35, 31, 0.35)"
+        stroke="rgba(255, 255, 255, 0.3)"
         strokeWidth="1"
       />
     </svg>

@@ -1,8 +1,8 @@
 import {
-  DEMO_BUDGETS,
-  DEMO_CATEGORIES,
-  createDemoTransactions,
-} from "../data/demoData";
+  SEED_BUDGETS,
+  SEED_CATEGORIES,
+  createSeedTransactions,
+} from "../data/seedData";
 import { isValidIsoDate } from "../lib/dates";
 import type { Transaction, TransactionInput } from "../types";
 import {
@@ -11,15 +11,15 @@ import {
   type FinanceRepository,
 } from "./financeRepository";
 
-/** Bump the version if the stored shape changes; old data is then replaced by the sample data. */
-const STORAGE_KEY = "tallybook:demo:v1";
+/** Bump the version if the stored shape changes; old data is then replaced by the starter data. */
+const STORAGE_KEY = "tallybook:v1";
 
 interface StoredData {
   version: 1;
   transactions: Transaction[];
 }
 
-const validCategoryIds = new Set(DEMO_CATEGORIES.map((c) => c.id));
+const validCategoryIds = new Set(SEED_CATEGORIES.map((c) => c.id));
 
 function isTransaction(value: unknown): value is Transaction {
   if (typeof value !== "object" || value === null) return false;
@@ -64,10 +64,10 @@ function newId(): string {
 }
 
 /**
- * Demo repository: sample data in memory, user changes in localStorage.
+ * Local repository: starter data on first load, then the user's changes in localStorage.
  * The storage is injectable so it can be tested without a browser.
  */
-export function createLocalDemoRepository(
+export function createLocalRepository(
   storage: Storage | null = getBrowserStorage(),
 ): FinanceRepository {
   function write(transactions: Transaction[]): void {
@@ -85,23 +85,23 @@ export function createLocalDemoRepository(
     }
   }
 
-  /** Reads saved data. Missing, corrupted or outdated data falls back to the sample data. */
+  /** Reads saved data. Missing, corrupted or outdated data falls back to the starter data. */
   function read(): Transaction[] {
     let raw: string | null = null;
     try {
       raw = storage?.getItem(STORAGE_KEY) ?? null;
     } catch {
-      return createDemoTransactions();
+      return createSeedTransactions();
     }
     if (raw !== null) {
       try {
         const parsed: unknown = JSON.parse(raw);
         if (isStoredData(parsed)) return parsed.transactions;
       } catch {
-        // fall through to the sample data
+        // fall through to the starter data
       }
     }
-    const seed = createDemoTransactions();
+    const seed = createSeedTransactions();
     try {
       write(seed);
     } catch {
@@ -111,13 +111,13 @@ export function createLocalDemoRepository(
   }
 
   return {
-    mode: "demo",
+    mode: "local",
 
     async listCategories() {
-      return DEMO_CATEGORIES;
+      return SEED_CATEGORIES;
     },
     async listBudgets() {
-      return DEMO_BUDGETS;
+      return SEED_BUDGETS;
     },
     async listTransactions() {
       return read();
@@ -143,8 +143,8 @@ export function createLocalDemoRepository(
       write(all.filter((t) => t.id !== id));
     },
 
-    async resetDemoData() {
-      const seed = createDemoTransactions();
+    async restoreStarterData() {
+      const seed = createSeedTransactions();
       write(seed);
       return seed;
     },

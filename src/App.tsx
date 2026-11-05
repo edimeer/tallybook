@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ConfirmDialog } from "./components/ConfirmDialog";
 import { Dashboard } from "./components/Dashboard";
-import { DemoNotice } from "./components/DemoNotice";
 import { EmptyState } from "./components/EmptyState";
 import { PlusIcon } from "./components/Icons";
 import { MonthSelector } from "./components/MonthSelector";
 import { TransactionForm } from "./components/TransactionForm";
-import { DEFAULT_MONTH, DEMO_MONTHS } from "./data/demoData";
+import { DEFAULT_MONTH, SEED_MONTHS } from "./data/seedData";
 import { useFinanceData } from "./hooks/useFinanceData";
 import { availableMonths, type TransactionFilters } from "./lib/calculations";
 import { defaultDateForMonth, formatDateShort, monthOf } from "./lib/dates";
@@ -39,10 +38,10 @@ export default function App() {
   const [message, setMessage] = useState("");
   const transactionsHeadingRef = useRef<HTMLHeadingElement>(null);
 
-  const isDemo = repository.mode === "demo";
+  const canReset = Boolean(repository.restoreStarterData);
   const transactions = finance.data?.transactions;
   const months = useMemo(
-    () => availableMonths(transactions ?? [], DEMO_MONTHS),
+    () => availableMonths(transactions ?? [], SEED_MONTHS),
     [transactions],
   );
 
@@ -95,20 +94,12 @@ export default function App() {
             </div>
           </div>
           <div className="site-header__controls">
-            {isDemo && <span className="badge">Demo data</span>}
             <MonthSelector months={months} value={month} onChange={setMonth} />
           </div>
         </div>
       </header>
 
       <main id="main" className="container main">
-        {isDemo && finance.status === "ready" && (
-          <DemoNotice
-            onRestore={() => setDialog({ kind: "restore" })}
-            onClear={() => setDialog({ kind: "clear" })}
-          />
-        )}
-
         {finance.status === "loading" && (
           <p className="loading" role="status">
             Loading your dashboard...
@@ -148,20 +139,20 @@ export default function App() {
                     <PlusIcon />
                     Add your first transaction
                   </button>
-                  {isDemo && (
+                  {canReset && (
                     <button
                       type="button"
                       className="btn btn--ghost"
                       onClick={() => setDialog({ kind: "restore" })}
                     >
-                      Restore sample data
+                      Load starter data
                     </button>
                   )}
                 </>
               }
             >
               Start from a blank slate by adding income and expenses yourself,
-              or bring back the original sample data to explore the dashboard.
+              or load the starter transactions to see the dashboard filled in.
             </EmptyState>
           </div>
         )}
@@ -183,8 +174,8 @@ export default function App() {
             onDelete={(transaction) =>
               setDialog({ kind: "delete", transaction })
             }
-            onRestoreDemo={
-              isDemo ? () => setDialog({ kind: "restore" }) : undefined
+            onRestoreStarter={
+              canReset ? () => setDialog({ kind: "restore" }) : undefined
             }
           />
         )}
@@ -192,9 +183,28 @@ export default function App() {
 
       <footer className="container site-footer">
         <p>
-          Tallybook organizes and visualizes sample or manually entered data. It
-          does not connect to banks, move money, or give financial advice.
+          Tallybook organizes and visualizes the data you enter. It does not
+          connect to banks, move money, or give financial advice.
         </p>
+        {canReset && finance.status === "ready" && (
+          <p className="site-footer__data">
+            Your data is stored only in this browser.{" "}
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => setDialog({ kind: "restore" })}
+            >
+              Load starter data
+            </button>{" "}
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => setDialog({ kind: "clear" })}
+            >
+              Clear all data
+            </button>
+          </p>
+        )}
       </footer>
 
       {/* Dialogs */}
@@ -224,15 +234,15 @@ export default function App() {
 
       {dialog.kind === "restore" && (
         <ConfirmDialog
-          title="Restore sample data?"
-          message="This replaces every transaction, including any you added or edited, with the original sample data."
-          confirmLabel="Restore"
+          title="Load starter data?"
+          message="This replaces every transaction, including any you added or edited, with the starter data."
+          confirmLabel="Load"
           onCancel={closeDialog}
           onConfirm={async () => {
-            await finance.resetDemoData();
+            await finance.restoreStarterData();
             setMonth(DEFAULT_MONTH);
             setFilters(DEFAULT_FILTERS);
-            setMessage("Sample data restored.");
+            setMessage("Starter data loaded.");
             closeDialog();
           }}
         />
@@ -241,7 +251,7 @@ export default function App() {
       {dialog.kind === "clear" && (
         <ConfirmDialog
           title="Clear all data?"
-          message="This removes every transaction so you can start from an empty dashboard. You can bring the sample data back at any time."
+          message="This removes every transaction so you can start from an empty dashboard. You can load the starter data again at any time."
           confirmLabel="Clear all"
           onCancel={closeDialog}
           onConfirm={async () => {

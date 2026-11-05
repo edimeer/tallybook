@@ -194,3 +194,37 @@ export function filterAndSortTransactions(
       return matches.sort(byDateDesc);
   }
 }
+
+export const PAGE_SIZE = 10;
+
+export interface Page<T> {
+  items: T[];
+  /** The page actually shown (1-based), clamped to the valid range. */
+  page: number;
+  pageCount: number;
+  /** 1-based position of the first and last item shown, both 0 when the list is empty. */
+  start: number;
+  end: number;
+  total: number;
+}
+
+/** Slices a list into pages. An out-of-range page number is clamped, never an error. */
+export function paginate<T>(
+  items: T[],
+  page: number,
+  pageSize: number = PAGE_SIZE,
+): Page<T> {
+  const total = items.length;
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const current = Math.min(Math.max(1, Math.floor(page) || 1), pageCount);
+  const from = (current - 1) * pageSize;
+  const shown = items.slice(from, from + pageSize);
+  return {
+    items: shown,
+    page: current,
+    pageCount,
+    start: total === 0 ? 0 : from + 1,
+    end: from + shown.length,
+    total,
+  };
+}

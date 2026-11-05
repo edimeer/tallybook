@@ -90,9 +90,9 @@ export function useFinanceData(repository: FinanceRepository) {
     [repository, setTransactions],
   );
 
-  const resetDemoData = useCallback(async () => {
-    if (!repository.resetDemoData) return;
-    const transactions = await repository.resetDemoData();
+  const restoreStarterData = useCallback(async () => {
+    if (!repository.restoreStarterData) return;
+    const transactions = await repository.restoreStarterData();
     setTransactions(() => transactions);
   }, [repository, setTransactions]);
 
@@ -110,7 +110,7 @@ export function useFinanceData(repository: FinanceRepository) {
     addTransaction,
     editTransaction,
     removeTransaction,
-    resetDemoData,
+    restoreStarterData,
     clearAllData,
   };
 }

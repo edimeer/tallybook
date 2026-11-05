@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { DEMO_BUDGETS, DEMO_CATEGORIES } from "../data/demoData";
+import { SEED_BUDGETS, SEED_CATEGORIES } from "../data/seedData";
 import type { Transaction } from "../types";
 import {
   availableMonths,
   budgetProgress,
   filterAndSortTransactions,
+  paginate,
   spendingByCategory,
   summarize,
   transactionsInMonth,
@@ -37,7 +38,7 @@ describe("summarize", () => {
   it("totals income and expenses and computes the savings rate", () => {
     const result = summarize(
       transactionsInMonth(sample, "2026-10"),
-      DEMO_CATEGORIES,
+      SEED_CATEGORIES,
     );
     expect(result.incomeCents).toBe(500000);
     expect(result.expenseCents).toBe(215000);
@@ -48,13 +49,13 @@ describe("summarize", () => {
   it("returns a null savings rate when there is no income", () => {
     const result = summarize(
       [tx("2026-10-02", "housing", 100)],
-      DEMO_CATEGORIES,
+      SEED_CATEGORIES,
     );
     expect(result.savingsRate).toBeNull();
   });
 
   it("handles an empty month", () => {
-    expect(summarize([], DEMO_CATEGORIES)).toEqual({
+    expect(summarize([], SEED_CATEGORIES)).toEqual({
       incomeCents: 0,
       expenseCents: 0,
       netCents: 0,
@@ -67,7 +68,7 @@ describe("spendingByCategory", () => {
   it("sorts largest first, ignores income, and shares add up to 1", () => {
     const rows = spendingByCategory(
       transactionsInMonth(sample, "2026-10"),
-      DEMO_CATEGORIES,
+      SEED_CATEGORIES,
     );
     expect(rows.map((r) => r.category.id)).toEqual([
       "housing",
@@ -86,7 +87,7 @@ describe("budgetProgress", () => {
       tx("2026-10-01", "dining", 25000), // 28,000 planned: 89%, near
       tx("2026-10-01", "fun", 1000), // 12,000 planned: ok
     ];
-    const rows = budgetProgress(month, DEMO_BUDGETS, DEMO_CATEGORIES);
+    const rows = budgetProgress(month, SEED_BUDGETS, SEED_CATEGORIES);
     const status = Object.fromEntries(
       rows.map((r) => [r.category.id, r.status]),
     );
@@ -116,13 +117,13 @@ describe("filterAndSortTransactions", () => {
 
   it("searches descriptions and category names, case-insensitively", () => {
     expect(
-      filterAndSortTransactions(october, DEMO_CATEGORIES, {
+      filterAndSortTransactions(october, SEED_CATEGORIES, {
         ...base,
         query: "CO-OP",
       }),
     ).toHaveLength(1);
     expect(
-      filterAndSortTransactions(october, DEMO_CATEGORIES, {
+      filterAndSortTransactions(october, SEED_CATEGORIES, {
         ...base,
         query: "dining",
       }),
@@ -130,7 +131,7 @@ describe("filterAndSortTransactions", () => {
   });
 
   it("filters by category", () => {
-    const result = filterAndSortTransactions(october, DEMO_CATEGORIES, {
+    const result = filterAndSortTransactions(october, SEED_CATEGORIES, {
       ...base,
       categoryId: "groceries",
     });
@@ -138,15 +139,51 @@ describe("filterAndSortTransactions", () => {
   });
 
   it("sorts by amount and date", () => {
-    const byAmount = filterAndSortTransactions(october, DEMO_CATEGORIES, {
+    const byAmount = filterAndSortTransactions(october, SEED_CATEGORIES, {
       ...base,
       sort: "amount-desc",
     });
     expect(byAmount[0].description).toBe("Paycheck");
-    const oldest = filterAndSortTransactions(october, DEMO_CATEGORIES, {
+    const oldest = filterAndSortTransactions(october, SEED_CATEGORIES, {
       ...base,
       sort: "date-asc",
     });
     expect(oldest[0].date).toBe("2026-10-01");
+  });
+});
+
+describe("paginate", () => {
+  const items = Array.from({ length: 23 }, (_, i) => i + 1);
+
+  it("slices into pages of the requested size", () => {
+    const first = paginate(items, 1, 10);
+    expect(first.items).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(first).toMatchObject({
+      page: 1,
+      pageCount: 3,
+      start: 1,
+      end: 10,
+      total: 23,
+    });
+    const last = paginate(items, 3, 10);
+    expect(last.items).toEqual([21, 22, 23]);
+    expect(last).toMatchObject({ start: 21, end: 23 });
+  });
+
+  it("clamps out-of-range pages", () => {
+    expect(paginate(items, 99, 10).page).toBe(3);
+    expect(paginate(items, 0, 10).page).toBe(1);
+    expect(paginate(items, Number.NaN, 10).page).toBe(1);
+  });
+
+  it("handles an empty list", () => {
+    expect(paginate([], 1, 10)).toEqual({
+      items: [],
+      page: 1,
+      pageCount: 1,
+      start: 0,
+      end: 0,
+      total: 0,
+    });
   });
 });

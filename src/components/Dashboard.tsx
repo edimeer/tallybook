@@ -10,7 +10,7 @@ import {
 } from "../lib/calculations";
 import { formatMonth, formatMonthName } from "../lib/dates";
 import type { Budget, Category, MonthKey, Transaction } from "../types";
-import { DEMO_MONTHS } from "../data/demoData";
+import { SEED_MONTHS } from "../data/seedData";
 import { BudgetPanel } from "./BudgetPanel";
 import { MonthHero } from "./MonthHero";
 import { SpendingBreakdown } from "./SpendingBreakdown";
@@ -28,7 +28,7 @@ interface DashboardProps {
   onAdd: () => void;
   onEdit: (transaction: Transaction) => void;
   onDelete: (transaction: Transaction) => void;
-  onRestoreDemo?: () => void;
+  onRestoreStarter?: () => void;
 }
 
 /** Everything that depends on the selected month. All numbers come from lib/calculations. */
@@ -44,10 +44,10 @@ export function Dashboard({
   onAdd,
   onEdit,
   onDelete,
-  onRestoreDemo,
+  onRestoreStarter,
 }: DashboardProps) {
   const view = useMemo(() => {
-    const months = availableMonths(transactions, DEMO_MONTHS);
+    const months = availableMonths(transactions, SEED_MONTHS);
     const index = months.indexOf(month);
     const previousMonth = index > 0 ? months[index - 1] : null;
 
@@ -95,6 +95,7 @@ export function Dashboard({
       </div>
 
       <TransactionList
+        key={month}
         transactions={view.inMonth}
         categories={categories}
         filters={filters}
@@ -104,7 +105,7 @@ export function Dashboard({
         onAdd={onAdd}
         onEdit={onEdit}
         onDelete={onDelete}
-        onRestoreDemo={onRestoreDemo}
+        onRestoreStarter={onRestoreStarter}
       />
     </div>
   );

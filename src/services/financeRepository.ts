@@ -3,17 +3,17 @@ import type { Budget, Category, Transaction, TransactionInput } from "../types";
 /**
  * The only way the UI reads or writes finance data.
  *
- * Today the app uses `localDemoRepository` (browser storage, sample data).
+ * Today the app uses `localRepository` (browser storage, seeded with starter data).
  * To connect a Rails JSON API later, write another object that implements this
  * interface (see docs/api-boundary.md) and return it from `createRepository`
  * in services/index.ts. No component needs to change.
  *
- * Every method returns a Promise even though the demo version is instant, so
+ * Every method returns a Promise even though the local version is instant, so
  * the UI already handles loading and error states.
  */
 export interface FinanceRepository {
-  /** "demo" shows the Demo data badge and the restore/clear actions. */
-  readonly mode: "demo" | "api";
+  /** "local" shows the reset and clear actions; "api" hides them. */
+  readonly mode: "local" | "api";
 
   listCategories(): Promise<Category[]>;
   listBudgets(): Promise<Budget[]>;
@@ -23,9 +23,9 @@ export interface FinanceRepository {
   updateTransaction(id: string, input: TransactionInput): Promise<Transaction>;
   deleteTransaction(id: string): Promise<void>;
 
-  /** Demo-only. Replaces all transactions with the original sample data. */
-  resetDemoData?(): Promise<Transaction[]>;
-  /** Demo-only. Removes every transaction so the empty state can be explored. */
+  /** Local only. Replaces all transactions with the starter data. */
+  restoreStarterData?(): Promise<Transaction[]>;
+  /** Local only. Removes every transaction. */
   clearAllData?(): Promise<Transaction[]>;
 }
 

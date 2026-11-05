@@ -1,21 +1,21 @@
 # Tallybook
 
-A personal finance dashboard built as a portfolio project. It shows a monthly overview, a spending breakdown, a budget comparison and a searchable transaction list, all from sample data. There is no sign-up and no bank connection: open it and try it.
+A personal finance dashboard for tracking spending, budgets and transactions. It shows a monthly overview, a spending breakdown, a budget comparison and a searchable, paginated transaction list. There is no sign-up and no bank connection: your data stays in your browser.
 
-It is a static React app (Vite + TypeScript) that deploys to GitHub Pages. It organizes and visualizes sample or manually entered data. It does not connect to banks, process payments, or give financial advice.
+It is a static React app (Vite + TypeScript) that deploys to GitHub Pages. It organizes and visualizes the data you enter. It does not connect to banks, process payments, or give financial advice.
 
-![Tallybook dashboard showing the October 2026 sample data](docs/screenshot.png)
+![Tallybook dashboard for October 2026](docs/screenshot.png)
 
 ## Features
 
 - Monthly overview: a hero showing how much of the plan is left, with income, expenses and savings rate (compared with the previous month) underneath
 - Spending breakdown: donut chart plus a legend with amounts and percentages (slices also use textures, so they do not rely on color alone). Choosing a legend item filters the transaction list.
 - Monthly budget: planned vs actual per category, with text and pattern cues for "near limit" and "over budget"
-- Transactions: search, category filter, sorting, income/expense indicators (icon, sign and color)
+- Transactions: search, category filter, sorting, pagination (10 per page), income/expense indicators (icon, sign and color)
 - Add, edit and delete transactions with validation
-- Month selector (six months of sample data)
+- Month selector (six months of starter data)
 - Empty states, confirm dialogs and error messages
-- A visible "Demo data" badge and notice
+- A dark theme designed to be easy on the eyes
 
 ## Run locally
 
@@ -66,22 +66,22 @@ VITE_BASE_PATH=/my-repo/ npm run build
 
 In GitHub Actions, add a repository variable named `VITE_BASE_PATH` (Settings > Secrets and variables > Actions > Variables). Nothing in this project hard-codes a repository name or URL.
 
-## Demo mode
+## Your data
 
-Demo mode is the default. The sample transactions are generated in code (`src/data/demoData.ts`) with a seeded generator, so everyone sees the same data.
+Tallybook stores everything in your browser. A first visit loads six months of starter transactions (generated in `src/data/seedData.ts` with a seeded generator, so they are always the same).
 
-- Any transaction you add, edit or delete is saved in your browser's local storage (key `tallybook:demo:v1`). It never leaves your device.
-- **Restore sample data** (in the Demo data notice) replaces everything with the original sample data.
-- **Clear all data** removes every transaction so you can see the empty state. Restore brings the samples back.
-- Clearing your browser's site data also resets the demo.
+- Transactions you add, edit or delete are saved in your browser's local storage (key `tallybook:v1`). They never leave your device.
+- **Load starter data** (in the page footer) replaces everything with the original starter transactions.
+- **Clear all data** removes every transaction so you can begin with an empty dashboard.
+- Clearing your browser's site data also resets the app.
 
 ## Project structure
 
 ```
 src/
-  data/         Sample categories, budgets and the transaction generator
+  data/         Categories, budgets and the starter transaction generator
   lib/          Pure helpers: calculations, validation, money and date formatting
-  services/     Data access: the repository interface and the local demo implementation
+  services/     Data access: the repository interface and the local implementation
   hooks/        useFinanceData: loads data from the repository into React state
   components/   UI components (dashboard panels, chart, form, dialogs)
   styles/       Design tokens, base styles, component styles
@@ -94,7 +94,7 @@ Components never touch local storage directly. They call `useFinanceData`, which
 
 ## Future Rails API
 
-See [docs/api-boundary.md](docs/api-boundary.md) for the interface, the expected endpoints and the steps to switch from the local demo repository to an API.
+See [docs/api-boundary.md](docs/api-boundary.md) for the interface, the expected endpoints and the steps to switch from the local repository to an API.
 
 ## Design notes
 

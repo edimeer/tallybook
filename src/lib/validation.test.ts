@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEMO_CATEGORIES } from "../data/demoData";
+import { SEED_CATEGORIES } from "../data/seedData";
 import {
   validateTransactionForm,
   type TransactionFormValues,
@@ -15,7 +15,7 @@ const valid: TransactionFormValues = {
 
 describe("validateTransactionForm", () => {
   it("accepts valid input and normalizes it", () => {
-    const result = validateTransactionForm(valid, DEMO_CATEGORIES);
+    const result = validateTransactionForm(valid, SEED_CATEGORIES);
     expect(result).toEqual({
       ok: true,
       value: {
@@ -36,7 +36,7 @@ describe("validateTransactionForm", () => {
         date: "",
         categoryId: "",
       },
-      DEMO_CATEGORIES,
+      SEED_CATEGORIES,
     );
     expect(result.ok).toBe(false);
     if (!result.ok) {
@@ -57,7 +57,7 @@ describe("validateTransactionForm", () => {
   ])("rejects an amount that is %s", (_name, amount) => {
     const result = validateTransactionForm(
       { ...valid, amount },
-      DEMO_CATEGORIES,
+      SEED_CATEGORIES,
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.amount).toBeDefined();
@@ -72,7 +72,7 @@ describe("validateTransactionForm", () => {
     ]) {
       const result = validateTransactionForm(
         { ...valid, date },
-        DEMO_CATEGORIES,
+        SEED_CATEGORIES,
       );
       expect(result.ok).toBe(false);
     }
@@ -81,7 +81,7 @@ describe("validateTransactionForm", () => {
   it("rejects a category that does not match the type", () => {
     const result = validateTransactionForm(
       { ...valid, type: "income" },
-      DEMO_CATEGORIES,
+      SEED_CATEGORIES,
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.errors.categoryId).toBeDefined();
